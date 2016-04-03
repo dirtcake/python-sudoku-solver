@@ -7,19 +7,20 @@ def load(filename):
     puzzle = []
     with open(filename) as f:
         for line in f.read().splitlines():
-            puzzle.append([int(i) for i in line.split(' ')])
+            puzzle.extend([int(i) for i in line.split(' ')])
     return puzzle
 
 
 def print_puzzle(puzzle):
     lc = 0
-    for line in puzzle:
+    for i in range(9):
         if lc % 3 == 0:
             print('+-----+-----+-----+')
         lc += 1
-        line_str = ' '.join([str(i) for i in line])
+        line_str = ' '.join([str(i) for i in puzzle[i*9:i*9+9]])
         print('|{}|{}|{}|'.format(line_str[0:5], line_str[6:11], line_str[12:17]))
     print('+-----+-----+-----+')
+
 
 def init_graph():
     graph = {}
@@ -28,27 +29,27 @@ def init_graph():
             adj = []
 
             # row
-            adj.extend([(i, b) for b in range(9) if b != j])
+            adj.extend([i*9 + b for b in range(9) if b != j])
             # column
-            adj.extend([(a, j) for a in range(9) if a != i])
+            adj.extend([a*9 + j for a in range(9) if a != i])
             # block
             block_row = i // 3
             block_col = j // 3
-            adj.extend([(block_row * 3 + a, block_col * 3 + b) for a in range(3) for b in range(3) if a != j and b != j]) # block
-            graph[(i, j)] = adj
+            adj.extend([(block_row * 3 + a) * 9 + (block_col * 3 + b) for a in range(3) for b in range(3) if a != j and b != j]) # block
+            graph[i*9 + j] = adj
     return graph
 
 
 def init_domain(puzzle, graph):
     domain = {}
-    for i, line in enumerate(puzzle):
-        for j, cell in enumerate(line):
-            if cell == 0:
-                domain[(i, j)] = set(range(1,10))
-                for cell in [puzzle[adj[0]][adj[1]] for adj in graph[(i, j)]]:
-                    domain[(i, j)].discard(cell)
-            else:
-                domain[(i, j)] = set()
+    for i, cell in enumerate(puzzle):
+        if cell == 0:
+            domain[i] = set(range(1,10))
+            for cell in [puzzle[adj] for adj in graph[i]]:
+                domain[i].discard(cell)
+        else:
+            domain[i] = set()
+    print(domain)
     return domain
 
 
@@ -80,12 +81,7 @@ def _propogate(graph, domain, pos, value):
 
 
 def is_solved(puzzle):
-    for line in puzzle:
-        for cell in line:
-            if cell == 0:
-                return False
-    return True
-
+    return 0 not in puzzle
 
 def _solve(puzzle, graph, domain, depth=0):
     most_constrained = most_constrained_cell(domain)
@@ -96,12 +92,10 @@ def _solve(puzzle, graph, domain, depth=0):
         sorted_domain = sorted(domain[most_constrained],
             key=lambda value: affected_domains(graph, domain, most_constrained, value))
         for value in sorted_domain:
-            newpuzzle = []
-            for line in puzzle:
-                newpuzzle.append(list(line))
+            newpuzzle = list(puzzle)
             newdomain = deepcopy(domain)
 
-            newpuzzle[most_constrained[0]][most_constrained[1]] = value
+            newpuzzle[most_constrained] = value
             newdomain[most_constrained] = set()
 
             _propogate(graph, newdomain, most_constrained, value)
@@ -124,7 +118,7 @@ if __name__ == '__main__':
         filename = 'hw1.txt'
     else:
         filename = sys.argv[1]
-
     puzzle = load(filename)
+    print_puzzle(puzzle)
 
     print_puzzle(solve(puzzle))
