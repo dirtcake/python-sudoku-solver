@@ -83,34 +83,46 @@ def _propogate(graph, domain, pos, value):
 def is_solved(puzzle):
     return 0 not in puzzle
 
+
 def _solve(puzzle, graph, domain, depth=0):
     most_constrained = most_constrained_cell(domain)
     if is_solved(puzzle):
         return puzzle
 
     if most_constrained is not None: # puzzle isn't solved but still has 0's
+        # sort domain by least constraining value
         sorted_domain = sorted(domain[most_constrained],
             key=lambda value: affected_domains(graph, domain, most_constrained, value))
+
+        # save current domain
+        old_domain = {}
+        for pos in graph[most_constrained]:
+            old_domain[pos] = deepcopy(domain[pos])
+        old_domain[most_constrained] = deepcopy(domain[most_constrained])
+
         for value in sorted_domain:
             newpuzzle = list(puzzle)
-            newdomain = deepcopy(domain)
 
             newpuzzle[most_constrained] = value
-            newdomain[most_constrained] = set()
+            domain[most_constrained] = set()
 
-            _propogate(graph, newdomain, most_constrained, value)
-            # print_puzzle(newpuzzle)
-            # print(most_constrained, value)
-            # print(graph[(4,1)])
-            # input()
-            sol = _solve(newpuzzle, graph, newdomain, depth+1)
+            _propogate(graph, domain, most_constrained, value)
+
+            sol = _solve(newpuzzle, graph, domain, depth+1)
             if sol is not None:
                 return sol
+
+            # restore domain
+            for pos in graph[most_constrained]:
+                domain[pos] = deepcopy(old_domain[pos])
+            domain[most_constrained] = deepcopy(old_domain[most_constrained])
+
 
 def solve(puzzle):
     graph = init_graph()
     domain = init_domain(puzzle, graph)
     return _solve(puzzle, graph, domain)
+
 
 if __name__ == '__main__':
 
