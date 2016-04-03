@@ -1,8 +1,6 @@
 #!/bin/python3
 import sys
 
-from copy import deepcopy, copy
-
 def load(filename):
     puzzle = []
     with open(filename) as f:
@@ -54,13 +52,10 @@ def init_domain(puzzle, graph):
 
 
 def most_constrained_cell(domain):
-    min_size = 2147483647
-    most_constrained = None
-    for pos, dom in domain.items():
-        if len(dom) < min_size and len(dom) != 0:
-            min_size = len(dom)
-            most_constrained = pos
-    return most_constrained
+    try:
+        return min((cell for cell in domain if domain[cell]), key=lambda x: len(domain[x]))
+    except ValueError:
+        return None
 
 
 def affected_domains(graph, domain, pos, value):
@@ -97,8 +92,8 @@ def _solve(puzzle, graph, domain, depth=0):
         # save current domain
         old_domain = {}
         for pos in graph[most_constrained]:
-            old_domain[pos] = deepcopy(domain[pos])
-        old_domain[most_constrained] = deepcopy(domain[most_constrained])
+            old_domain[pos] = set(domain[pos])
+        old_domain[most_constrained] = set(domain[most_constrained])
 
         for value in sorted_domain:
             newpuzzle = list(puzzle)
@@ -114,8 +109,8 @@ def _solve(puzzle, graph, domain, depth=0):
 
             # restore domain
             for pos in graph[most_constrained]:
-                domain[pos] = deepcopy(old_domain[pos])
-            domain[most_constrained] = deepcopy(old_domain[most_constrained])
+                domain[pos] = set(old_domain[pos])
+            domain[most_constrained] = set(old_domain[most_constrained])
 
 
 def solve(puzzle):
