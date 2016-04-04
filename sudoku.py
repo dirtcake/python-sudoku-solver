@@ -52,7 +52,7 @@ def init_domain(puzzle, graph):
 
 def most_constrained_cell(domain):
     try:
-        return min((cell for cell in domain if domain[cell]), key=lambda x: len(domain[x]))
+        return min([cell for cell in domain if domain[cell]], key=lambda x: len(domain[x]))
     except ValueError:
         return None
 
@@ -60,7 +60,6 @@ def most_constrained_cell(domain):
 def affected_domains(graph, domain, pos, value):
     '''returns number of adjacent domains of 'pos' that 'value' constrains'''
 
-    least_affected = 2147483647
     count = 0
     for cell in graph[pos]:
         if value in domain[cell]:
