@@ -47,7 +47,6 @@ def init_domain(puzzle, graph):
                 domain[i].discard(cell)
         else:
             domain[i] = set()
-    print(domain)
     return domain
 
 
