@@ -127,5 +127,10 @@ if __name__ == '__main__':
         filename = sys.argv[1]
     puzzle = load(filename)
     print_puzzle(puzzle)
+    solved = solve(puzzle)
 
-    print_puzzle(solve(puzzle))
+    print_puzzle(solved)
+
+    with open(filename[:filename.index('.')] + '.solved', 'w') as f:
+        for i in range(9):
+            f.write(' '.join([str(x) for x in solved[i*9:i*9+9]]) + '\n')
