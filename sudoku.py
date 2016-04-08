@@ -67,7 +67,7 @@ def affected_domains(graph, domain, pos, value):
     return count
 
 
-def _propogate(graph, domain, pos, value):
+def propogate(graph, domain, pos, value):
     for cell in graph[pos]:
         if len(domain[cell]) != 0: # len == 0 means this cell is filled
             domain[cell].discard(value)
@@ -99,7 +99,7 @@ def _solve(puzzle, graph, domain, depth=0):
             newpuzzle[most_constrained] = value
             domain[most_constrained] = set()
 
-            _propogate(graph, domain, most_constrained, value)
+            propogate(graph, domain, most_constrained, value)
 
             sol = _solve(newpuzzle, graph, domain, depth+1)
             if sol is not None:
