@@ -120,15 +120,16 @@ def solve(puzzle):
 if __name__ == '__main__':
 
     if len(sys.argv) == 1:
-        filename = 'hw1.txt'
+        print('Usage: python3 sudoku.py <filename>')
     else:
         filename = sys.argv[1]
-    puzzle = load(filename)
-    print_puzzle(puzzle)
-    solved = solve(puzzle)
+        puzzle = load(filename)
+        print('Input:')
+        print_puzzle(puzzle)
+        solved = solve(puzzle)
+        print('Solved:')
+        print_puzzle(solved)
 
-    print_puzzle(solved)
-
-    with open(filename[:filename.index('.')] + '.solved', 'w') as f:
-        for i in range(9):
-            f.write(' '.join([str(x) for x in solved[i*9:i*9+9]]) + '\n')
+        with open(filename[:filename.index('.')] + '.solved.txt', 'w') as f:
+            for i in range(9):
+                f.write(' '.join([str(x) for x in solved[i*9:i*9+9]]) + '\n')
